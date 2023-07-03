@@ -1,0 +1,19 @@
+package com.ajgor.movieApi.entity;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter
+@Setter
+@RequiredArgsConstructor
+@AllArgsConstructor
+public class Review {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String author;
+
+    @Column(columnDefinition = "integer CHECK (rating >= 0 AND rating <= 10)")
+    private double rating;
+}
