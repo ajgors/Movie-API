@@ -1,13 +1,12 @@
 package com.ajgor.movieApi.service;
 
+import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.repository.MovieRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MovieService {
@@ -24,11 +23,11 @@ public class MovieService {
     }
 
     public Movie getMovie(Long id){
-        Optional<Movie> movie = movieRepository.findById(id);
-        if(movie.isPresent())
-            return movie.get();
-        else
-            throw new EntityNotFoundException("Movie not found");
+        return movieRepository.findById(id).orElseThrow(() -> new MovieNotFoundException(id));
+    }
+
+    public Movie getReference(Long id){
+        return movieRepository.getReferenceById(id);
     }
 
     public Movie putMovie(Movie movie){

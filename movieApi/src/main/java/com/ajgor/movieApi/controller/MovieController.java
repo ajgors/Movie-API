@@ -1,12 +1,13 @@
 package com.ajgor.movieApi.controller;
 
+import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.service.MovieService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -20,23 +21,25 @@ public class MovieController {
         this.movieService = movieService;
     }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Movie> getMovie(@PathVariable long id) throws MovieNotFoundException {
+        return ResponseEntity.ok(movieService.getMovie(id));
+    }
+
     @GetMapping
-    public ResponseEntity<List<Movie>> getMovies(){
+    public ResponseEntity<List<Movie>> getMovies() {
         return ResponseEntity.ok(movieService.getMovies());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Movie> getMovie(@PathVariable Long id){
-        try{
-            Movie movie = movieService.getMovie(id);
-            return ResponseEntity.ok(movie);
-        }catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     @PostMapping
     public ResponseEntity<Movie> putMovie(@RequestBody Movie movie){
-        return ResponseEntity.ok(movieService.putMovie(movie));
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(movieService.putMovie(movie).getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(movieService.putMovie(movie));
     }
 }

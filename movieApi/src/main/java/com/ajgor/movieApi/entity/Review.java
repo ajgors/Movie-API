@@ -1,4 +1,5 @@
 package com.ajgor.movieApi.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,4 +17,9 @@ public class Review {
 
     @Column(columnDefinition = "integer CHECK (rating >= 0 AND rating <= 10)")
     private double rating;
+
+    @ManyToOne
+    @ToString.Exclude
+    @JsonIgnore
+    private Movie movie;
 }

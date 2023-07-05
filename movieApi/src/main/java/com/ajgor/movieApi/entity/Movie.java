@@ -3,6 +3,7 @@ package com.ajgor.movieApi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Fetch;
 import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Movie {
     @NonNull
     private String poster;
 
-    @OneToMany
-    @JoinColumn(name = "movie_id")
+    @OneToMany(mappedBy = "movie")
+    @ToString.Exclude
     private List<Review> reviews = new ArrayList<>();
 }
