@@ -1,5 +1,7 @@
 package com.ajgor.movieApi.service;
 
+import com.ajgor.movieApi.dto.MovieRequest;
+import com.ajgor.movieApi.dto.MovieResponse;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.repository.MovieRepository;
@@ -7,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
@@ -18,19 +21,28 @@ public class MovieService {
         this.movieRepository = movieRepository;
     }
 
-    public List<Movie> getMovies(){
-        return movieRepository.findAll();
+    public List<MovieResponse> getMovies(){
+        return movieRepository.findAll().stream()
+                .map(MovieResponse::new)
+                .collect(Collectors.toList());
     }
 
-    public Movie getMovie(Long id){
-        return movieRepository.findById(id).orElseThrow(() -> new MovieNotFoundException(id));
+    public MovieResponse getMovie(Long id){
+        Movie movie = movieRepository.findById(id).orElseThrow(() -> new MovieNotFoundException(id));
+        return new MovieResponse(movie);
     }
 
-    public Movie getReference(Long id){
-        return movieRepository.getReferenceById(id);
-    }
+    public MovieRequest putMovie(MovieRequest movie){
+        Movie movieToSave = Movie.builder()
+                .title(movie.getTitle())
+                .description(movie.getDescription())
+                .date(movie.getDate())
+                .genres(movie.getGenres())
+                .poster(movie.getPoster())
+                .reviews(movie.getReviews())
+                .build();
 
-    public Movie putMovie(Movie movie){
-        return movieRepository.save(movie);
+        movieRepository.save(movieToSave);
+        return movie;
     }
 }

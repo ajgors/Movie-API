@@ -1,6 +1,9 @@
 package com.ajgor.movieApi.entity;
 
+import com.ajgor.movieApi.dto.MovieRequest;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Fetch;
@@ -12,31 +15,32 @@ import java.util.List;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Movie {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @NonNull
+    @NotBlank
     private String title;
 
-    @NonNull
+    @NotBlank
     private String description;
 
-    @NonNull
+    @NotBlank
     private String date;
 
-    @NonNull
+    @NotEmpty
     @ElementCollection
-    private List<String> genres;
+    private List<@NotBlank String> genres;
 
-    @NonNull
+    @NotBlank
     private String poster;
 
     @OneToMany(mappedBy = "movie")
     @ToString.Exclude
     private List<Review> reviews = new ArrayList<>();
+
 }

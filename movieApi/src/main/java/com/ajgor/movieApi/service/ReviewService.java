@@ -1,5 +1,7 @@
 package com.ajgor.movieApi.service;
 
+import com.ajgor.movieApi.dto.ReviewRequest;
+import com.ajgor.movieApi.dto.ReviewResponse;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.entity.Review;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
@@ -9,7 +11,10 @@ import com.ajgor.movieApi.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -26,23 +31,35 @@ public class ReviewService {
         this.movieRepository = movieRepository;
     }
 
-    public Review getMovieReview(Long movieId, Long reviewNumber) throws MovieNotFoundException{
+    public ReviewResponse getMovieReview(Long movieId, Long reviewNumber) throws MovieNotFoundException{
         try {
-            return movieService.getMovie(movieId).getReviews().get(reviewNumber.intValue());
+            return new ReviewResponse(movieService.getMovie(movieId).getReviews().get(reviewNumber.intValue()));
         } catch (IndexOutOfBoundsException e) {
             throw new ReviewNotFoundException(reviewNumber);
         }
     }
 
-    public List<Review> getReviewsByMovieId(Long movieId) throws MovieNotFoundException {
-        return movieService.getMovie(movieId).getReviews();
+    public List<ReviewResponse> getReviewsByMovieId(Long movieId) throws MovieNotFoundException {
+        return movieService.getMovie(movieId).getReviews().stream()
+                .map(ReviewResponse::new)
+                .collect(Collectors.toList());
     }
 
-    public Review putReview(Long movieId, Review review) throws MovieNotFoundException{
-        Movie movie = movieService.getMovie(movieId);
-        movie.getReviews().add(review);
-        movieRepository.save(movie);
-        review.setMovie(movie);
-        return reviewRepository.save(review);
+    public ReviewRequest putReview(Long movieId, ReviewRequest review){
+        Optional<Movie> movie = movieRepository.findById(movieId);
+        if(movie.isEmpty()){
+            throw new MovieNotFoundException(movieId);
+        }else{
+            Review reviewToSave = Review.builder()
+                            .movie(movie.get())
+                            .author(review.getAuthor())
+                            .rating(review.getRating())
+                            .build();
+            movie.get().getReviews().add(reviewToSave);
+            movieRepository.save(movie.get());
+            reviewToSave.setMovie(movie.get());
+            reviewRepository.save(reviewToSave);
+            return review;
+        }
     }
 }

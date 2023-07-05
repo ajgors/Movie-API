@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Review {
 
     @Id

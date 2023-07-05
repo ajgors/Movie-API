@@ -1,9 +1,13 @@
 package com.ajgor.movieApi.controller;
 
+import com.ajgor.movieApi.dto.MovieRequest;
+import com.ajgor.movieApi.dto.MovieResponse;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.service.MovieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -21,25 +25,18 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getMovie(@PathVariable long id) throws MovieNotFoundException {
+    public ResponseEntity<MovieResponse> getMovie(@PathVariable long id) throws MovieNotFoundException {
         return ResponseEntity.ok(movieService.getMovie(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Movie>> getMovies() {
+    public ResponseEntity<List<MovieResponse>> getMovies() {
         return ResponseEntity.ok(movieService.getMovies());
     }
 
-
     @PostMapping
-    public ResponseEntity<Movie> putMovie(@RequestBody Movie movie){
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(movieService.putMovie(movie).getId())
-                .toUri();
-        return ResponseEntity.created(uri).body(movieService.putMovie(movie));
+    public ResponseEntity<MovieRequest> putMovie(@RequestBody @Valid MovieRequest movie){
+        return new ResponseEntity<>(movieService.putMovie(movie), HttpStatus.CREATED);
     }
 }
