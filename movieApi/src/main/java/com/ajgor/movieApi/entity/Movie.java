@@ -1,9 +1,6 @@
 package com.ajgor.movieApi.entity;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.persistence.metamodel.StaticMetamodel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -34,7 +31,7 @@ public class Movie {
     private String date;
 
     @NotEmpty
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<@NotBlank String> genres;
 
     @NotBlank

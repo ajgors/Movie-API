@@ -5,25 +5,19 @@ import com.ajgor.movieApi.dto.ReviewResponse;
 import com.ajgor.movieApi.entity.Review;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.service.ReviewService;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
-import net.kaczmarzyk.spring.data.jpa.domain.GreaterThanOrEqual;
-import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/movies")
 public class ReviewController {
-
-    private final String DEFAULT_PAGE_NUMBER = "0";
-    private final String DEFAULT_PAGE_SIZE = "10";
-    private final String DEFAULT_SORTED_BY = "id";
-    private final String DEFAULT_SORTED_DIR = "asc";
     private final ReviewService reviewService;
 
     @Autowired
@@ -32,16 +26,12 @@ public class ReviewController {
     }
 
     @GetMapping("/{movieId}/reviews")
-    public ResponseEntity<List<ReviewResponse>> getReviews(
+    public ResponseEntity<Page<ReviewResponse>> getReviews(
             @PathVariable Long movieId,
-//            @RequestParam(required = false) Double rating,
-            @Spec(path = "rating", spec = GreaterThanOrEqual.class) Specification<Review> spec,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) Integer page,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_SIZE) Integer size,
-            @RequestParam(required = false, defaultValue = DEFAULT_SORTED_BY) String sortedBy,
-            @RequestParam(required = false, defaultValue = DEFAULT_SORTED_DIR) String sortedDir
+            @Filter Specification<Review> spec,
+            Pageable pageable
     ) throws MovieNotFoundException {
-        return ResponseEntity.ok(reviewService.getReviewsByMovieId(spec, movieId, page, size, sortedBy, sortedDir));
+        return ResponseEntity.ok(reviewService.getReviewsByMovieId(movieId, spec, pageable));
     }
 
     @PostMapping("/{movieId}/reviews")

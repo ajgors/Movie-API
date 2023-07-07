@@ -5,14 +5,11 @@ import com.ajgor.movieApi.dto.MovieResponse;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.repository.MovieRepository;
-import com.ajgor.movieApi.specification.MovieSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
@@ -24,22 +21,9 @@ public class MovieService {
         this.movieRepository = movieRepository;
     }
 
-    public Page<MovieResponse> getMovies(Specification<Movie> spec, List<String> genres, Integer page, Integer size, String sortedBy, String sortedDir) {
-
-        Specification<Movie> combinedSpec = Specification.where(spec).and(MovieSpecification.hasAnyGenreIn(genres));
-
-        Sort sort = sortedDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        List<MovieResponse> movies = movieRepository.findAll(combinedSpec, pageable)
-                .stream()
-                .map(MovieResponse::new)
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(movies, pageable, movieRepository.count());
+    public Page<MovieResponse> getMovies(Specification<Movie> spec, Pageable pageable) {
+        return movieRepository.findAll(spec, pageable).map(MovieResponse::new);
     }
-
 
     public MovieResponse getMovie(Long id) {
         Movie movie = movieRepository.findById(id).orElseThrow(() -> new MovieNotFoundException(id));

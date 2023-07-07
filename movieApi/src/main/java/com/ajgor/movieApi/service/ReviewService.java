@@ -8,54 +8,34 @@ import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.repository.MovieRepository;
 import com.ajgor.movieApi.repository.ReviewRepository;
 import com.ajgor.movieApi.specification.ReviewSpecification;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final MovieService movieService;
     private final MovieRepository movieRepository;
 
     @Autowired
-    public ReviewService(ReviewRepository reviewRepository, MovieService movieService,
+    public ReviewService(ReviewRepository reviewRepository,
                          MovieRepository movieRepository) {
         this.reviewRepository = reviewRepository;
-        this.movieService = movieService;
         this.movieRepository = movieRepository;
     }
 
-    public List<ReviewResponse> getReviewsByMovieId(Specification<Review> spec, Long movieId, Integer page, Integer size, String sortedBy, String sortedDir) {
+    public Page<ReviewResponse> getReviewsByMovieId(Long movieId, Specification<Review> spec, Pageable pageable) {
         if (!movieRepository.existsById(movieId)) {
             throw new MovieNotFoundException(movieId);
         }
-        ;
-
-        Sort sort = sortedDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
 
         Specification<Review> combinedSpec = Specification.where(spec).and(ReviewSpecification.movieId(movieId));
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        return reviewRepository.findAll(combinedSpec, pageable)
-                .stream()
-                .map(ReviewResponse::new)
-                .collect(Collectors.toList());
+        return reviewRepository.findAll(combinedSpec, pageable).map(ReviewResponse::new);
     }
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public ReviewRequest putReview(Long movieId, ReviewRequest review) {
         try {

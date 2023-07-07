@@ -5,11 +5,11 @@ import com.ajgor.movieApi.dto.MovieResponse;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.service.MovieService;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
-import net.kaczmarzyk.spring.data.jpa.domain.Like;
-import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +22,6 @@ import java.util.List;
 public class MovieController {
 
     private final MovieService movieService;
-    private final String DEFAULT_PAGE_NUMBER = "0";
-    private final String DEFAULT_PAGE_SIZE = "10";
-    private final String DEFAULT_SORTED_BY = "id";
-    private final String DEFAULT_SORTED_DIR = "asc";
 
     @Autowired
     public MovieController(MovieService movieService) {
@@ -37,16 +33,14 @@ public class MovieController {
         return ResponseEntity.ok(movieService.getMovie(id));
     }
 
+
+    //    http://localhost:8080/movies?filter=genres in %5B'akcja', 'Thriller'%5D
     @GetMapping()
     public ResponseEntity<Page<MovieResponse>> getMovies(
-            @Spec(path = "title", spec = Like.class) Specification<Movie> spec,
-            @RequestParam(required = false) List<String> genres,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) Integer page,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_SIZE) Integer size,
-            @RequestParam(required = false, defaultValue = DEFAULT_SORTED_BY) String sortedBy,
-            @RequestParam(required = false, defaultValue = DEFAULT_SORTED_DIR) String sortedDir
+            @Filter Specification<Movie> spec,
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(movieService.getMovies(spec, genres, page, size, sortedBy, sortedDir));
+        return ResponseEntity.ok(movieService.getMovies(spec, pageable));
     }
 
     @PostMapping

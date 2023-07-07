@@ -6,14 +6,14 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class ReviewSpecification {
 
-    public static Specification<Review> greaterThan(Double greaterThan) {
-        return (root, query, builder) -> {
-            if (greaterThan == null) return builder.conjunction();
-
-            final Path<Double> ratingPath = root.get("rating");
-            return builder.greaterThanOrEqualTo(ratingPath, greaterThan);
-        };
-    }
+//    public static Specification<Review> greaterThan(Double greaterThan) {
+//        return (root, query, builder) -> {
+//            if (greaterThan == null) return builder.conjunction();
+//
+//            final Path<Double> ratingPath = root.get("rating");
+//            return builder.greaterThanOrEqualTo(ratingPath, greaterThan);
+//        };
+//    }
 
     public static Specification<Review> movieId(Long movieId) {
         return (root, query, builder) -> {
