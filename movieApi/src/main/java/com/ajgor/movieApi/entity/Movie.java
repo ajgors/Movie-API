@@ -1,12 +1,14 @@
 package com.ajgor.movieApi.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.metamodel.StaticMetamodel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,9 +39,4 @@ public class Movie {
 
     @NotBlank
     private String poster;
-
-    @OneToMany(mappedBy = "movie")
-    @ToString.Exclude
-    private List<Review> reviews = new ArrayList<>();
-
 }

@@ -26,13 +26,16 @@ public class MovieService {
 
     public Page<MovieResponse> getMovies(Specification<Movie> spec, List<String> genres, Integer page, Integer size, String sortedBy, String sortedDir) {
 
-        Specification<Movie> cominedSpec = Specification.where(spec).and(MovieSpecification.hasAnyGenreIn(genres));
+        Specification<Movie> combinedSpec = Specification.where(spec).and(MovieSpecification.hasAnyGenreIn(genres));
 
         Sort sort = sortedDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        List<MovieResponse> movies = movieRepository.findAll(cominedSpec, pageable).stream().map(MovieResponse::new).collect(Collectors.toList());
+        List<MovieResponse> movies = movieRepository.findAll(combinedSpec, pageable)
+                .stream()
+                .map(MovieResponse::new)
+                .collect(Collectors.toList());
 
         return new PageImpl<>(movies, pageable, movieRepository.count());
     }
@@ -44,7 +47,13 @@ public class MovieService {
     }
 
     public MovieRequest putMovie(MovieRequest movie) {
-        Movie movieToSave = Movie.builder().title(movie.getTitle()).description(movie.getDescription()).date(movie.getDate()).genres(movie.getGenres()).poster(movie.getPoster()).reviews(movie.getReviews()).build();
+        Movie movieToSave = Movie.builder()
+                .title(movie.getTitle())
+                .description(movie.getDescription())
+                .date(movie.getDate())
+                .genres(movie.getGenres())
+                .poster(movie.getPoster())
+                .build();
 
         movieRepository.save(movieToSave);
         return movie;

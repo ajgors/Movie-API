@@ -29,5 +29,4 @@ public class MovieSpecification {
             return builder.like(builder.lower(titlePath), "%" + title.toLowerCase() + "%");
         };
     }
-
 }

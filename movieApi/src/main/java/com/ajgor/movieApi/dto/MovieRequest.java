@@ -43,6 +43,5 @@ public class MovieRequest {
         this.date = movie.getDate();
         this.genres = movie.getGenres();
         this.poster = movie.getPoster();
-        this.reviews = movie.getReviews();
     }
 }

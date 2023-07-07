@@ -5,14 +5,17 @@ import com.ajgor.movieApi.dto.ReviewResponse;
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.entity.Review;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
-import com.ajgor.movieApi.exception.ReviewNotFoundException;
 import com.ajgor.movieApi.repository.MovieRepository;
 import com.ajgor.movieApi.repository.ReviewRepository;
+import com.ajgor.movieApi.specification.ReviewSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,35 +33,30 @@ public class ReviewService {
         this.movieRepository = movieRepository;
     }
 
-    public ReviewResponse getMovieReview(Long movieId, Long reviewNumber) throws MovieNotFoundException {
-        try {
-            return new ReviewResponse(movieService.getMovie(movieId).getReviews().get(reviewNumber.intValue()));
-        } catch (IndexOutOfBoundsException e) {
-            throw new ReviewNotFoundException(reviewNumber);
-        }
-    }
+    public List<ReviewResponse> getReviewsByMovieId(Specification<Review> spec, Long movieId, Integer page, Integer size, String sortedBy, String sortedDir) {
+        movieRepository.findById(movieId).orElseThrow(() -> new MovieNotFoundException(movieId));
 
-    public List<ReviewResponse> getReviewsByMovieId(Long movieId) throws MovieNotFoundException {
-        return movieService.getMovie(movieId).getReviews().stream()
+        Sort sort = sortedDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
+
+        Specification<Review> combinedSpec = Specification.where(spec).and(ReviewSpecification.movieId(movieId));
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return reviewRepository.findAll(combinedSpec, pageable)
+                .stream()
                 .map(ReviewResponse::new)
                 .collect(Collectors.toList());
     }
 
     public ReviewRequest putReview(Long movieId, ReviewRequest review) {
-        Optional<Movie> movie = movieRepository.findById(movieId);
-        if (movie.isEmpty()) {
-            throw new MovieNotFoundException(movieId);
-        } else {
-            Review reviewToSave = Review.builder()
-                    .movie(movie.get())
-                    .author(review.getAuthor())
-                    .rating(review.getRating())
-                    .build();
-            movie.get().getReviews().add(reviewToSave);
-            movieRepository.save(movie.get());
-            reviewToSave.setMovie(movie.get());
-            reviewRepository.save(reviewToSave);
-            return review;
-        }
+        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MovieNotFoundException(movieId));
+        Review reviewToSave = Review.builder()
+                .movie(movie)
+                .author(review.getAuthor())
+                .rating(review.getRating())
+                .build();
+        reviewToSave.setMovie(movie);
+        reviewRepository.save(reviewToSave);
+        return review;
     }
 }
