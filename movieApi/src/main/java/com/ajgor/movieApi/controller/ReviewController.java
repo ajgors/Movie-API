@@ -2,7 +2,6 @@ package com.ajgor.movieApi.controller;
 
 import com.ajgor.movieApi.dto.ReviewRequest;
 import com.ajgor.movieApi.dto.ReviewResponse;
-import com.ajgor.movieApi.entity.Review;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.exception.ReviewNotFoundException;
 import com.ajgor.movieApi.service.ReviewService;
@@ -10,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,12 +19,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @Autowired
-    public ReviewController(ReviewService reviewService){
+    public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
     }
 
     @GetMapping("/{movieId}/reviews")
-    public ResponseEntity<List<ReviewResponse>> getReviews(@PathVariable Long movieId) throws MovieNotFoundException{
+    public ResponseEntity<List<ReviewResponse>> getReviews(@PathVariable Long movieId) throws MovieNotFoundException {
         return ResponseEntity.ok(reviewService.getReviewsByMovieId(movieId));
     }
 

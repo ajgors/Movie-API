@@ -11,7 +11,6 @@ import com.ajgor.movieApi.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,13 +24,13 @@ public class ReviewService {
 
     @Autowired
     public ReviewService(ReviewRepository reviewRepository, MovieService movieService,
-                         MovieRepository movieRepository){
+                         MovieRepository movieRepository) {
         this.reviewRepository = reviewRepository;
         this.movieService = movieService;
         this.movieRepository = movieRepository;
     }
 
-    public ReviewResponse getMovieReview(Long movieId, Long reviewNumber) throws MovieNotFoundException{
+    public ReviewResponse getMovieReview(Long movieId, Long reviewNumber) throws MovieNotFoundException {
         try {
             return new ReviewResponse(movieService.getMovie(movieId).getReviews().get(reviewNumber.intValue()));
         } catch (IndexOutOfBoundsException e) {
@@ -45,16 +44,16 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
-    public ReviewRequest putReview(Long movieId, ReviewRequest review){
+    public ReviewRequest putReview(Long movieId, ReviewRequest review) {
         Optional<Movie> movie = movieRepository.findById(movieId);
-        if(movie.isEmpty()){
+        if (movie.isEmpty()) {
             throw new MovieNotFoundException(movieId);
-        }else{
+        } else {
             Review reviewToSave = Review.builder()
-                            .movie(movie.get())
-                            .author(review.getAuthor())
-                            .rating(review.getRating())
-                            .build();
+                    .movie(movie.get())
+                    .author(review.getAuthor())
+                    .rating(review.getRating())
+                    .build();
             movie.get().getReviews().add(reviewToSave);
             movieRepository.save(movie.get());
             reviewToSave.setMovie(movie.get());

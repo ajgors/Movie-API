@@ -16,7 +16,7 @@ public class ValidationAdvice {
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleInvalidArgument(MethodArgumentNotValidException exception){
+    public Map<String, String> handleInvalidArgument(MethodArgumentNotValidException exception) {
         Map<String, String> errorMap = new java.util.HashMap<>();
         exception.getBindingResult().getFieldErrors()
                 .forEach(error -> errorMap.put(error.getField(), error.getDefaultMessage()));

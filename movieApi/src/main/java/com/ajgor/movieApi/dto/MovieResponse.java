@@ -2,9 +2,6 @@ package com.ajgor.movieApi.dto;
 
 import com.ajgor.movieApi.entity.Movie;
 import com.ajgor.movieApi.entity.Review;
-import jakarta.persistence.ElementCollection;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

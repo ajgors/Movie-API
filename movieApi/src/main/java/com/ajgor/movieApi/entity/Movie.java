@@ -1,13 +1,11 @@
 package com.ajgor.movieApi.entity;
 
-import com.ajgor.movieApi.dto.MovieRequest;
 import jakarta.persistence.*;
+import jakarta.persistence.metamodel.StaticMetamodel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import org.hibernate.Hibernate;
-import org.hibernate.annotations.Fetch;
-import org.springframework.lang.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
+@StaticMetamodel(Movie.class)
 public class Movie {
 
     @Id
