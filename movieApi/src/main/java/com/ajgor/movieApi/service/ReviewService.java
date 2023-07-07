@@ -8,6 +8,8 @@ import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.repository.MovieRepository;
 import com.ajgor.movieApi.repository.ReviewRepository;
 import com.ajgor.movieApi.specification.ReviewSpecification;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +37,10 @@ public class ReviewService {
     }
 
     public List<ReviewResponse> getReviewsByMovieId(Specification<Review> spec, Long movieId, Integer page, Integer size, String sortedBy, String sortedDir) {
-        movieRepository.findById(movieId).orElseThrow(() -> new MovieNotFoundException(movieId));
+        if (!movieRepository.existsById(movieId)) {
+            throw new MovieNotFoundException(movieId);
+        }
+        ;
 
         Sort sort = sortedDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
 
@@ -48,15 +54,22 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public ReviewRequest putReview(Long movieId, ReviewRequest review) {
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MovieNotFoundException(movieId));
-        Review reviewToSave = Review.builder()
-                .movie(movie)
-                .author(review.getAuthor())
-                .rating(review.getRating())
-                .build();
-        reviewToSave.setMovie(movie);
-        reviewRepository.save(reviewToSave);
-        return review;
+        try {
+            Movie movie = movieRepository.getReferenceById(movieId);
+            Review reviewToSave = Review.builder()
+                    .movie(movie)
+                    .author(review.getAuthor())
+                    .rating(review.getRating())
+                    .build();
+            reviewToSave.setMovie(movie);
+            reviewRepository.save(reviewToSave);
+            return review;
+        } catch (Exception e) {
+            throw new MovieNotFoundException(movieId);
+        }
     }
 }

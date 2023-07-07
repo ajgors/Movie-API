@@ -5,6 +5,7 @@ import com.ajgor.movieApi.dto.ReviewResponse;
 import com.ajgor.movieApi.entity.Review;
 import com.ajgor.movieApi.exception.MovieNotFoundException;
 import com.ajgor.movieApi.service.ReviewService;
+import jakarta.validation.Valid;
 import net.kaczmarzyk.spring.data.jpa.domain.GreaterThanOrEqual;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class ReviewController {
     }
 
     @PostMapping("/{movieId}/reviews")
-    public ResponseEntity<ReviewRequest> putReview(@PathVariable Long movieId, @RequestBody ReviewRequest review) throws MovieNotFoundException {
+    public ResponseEntity<ReviewRequest> putReview(@PathVariable Long movieId, @RequestBody @Valid ReviewRequest review) throws MovieNotFoundException {
         return new ResponseEntity<>(reviewService.putReview(movieId, review), HttpStatus.CREATED);
     }
 }
