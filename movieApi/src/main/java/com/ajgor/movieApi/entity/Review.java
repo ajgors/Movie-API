@@ -17,7 +17,6 @@ public class Review {
     private Long id;
     private String author;
 
-    @Column(columnDefinition = "integer CHECK (rating >= 0 AND rating <= 10)")
     private double rating;
 
     @ManyToOne

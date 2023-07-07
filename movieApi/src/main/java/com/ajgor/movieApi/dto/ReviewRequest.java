@@ -2,6 +2,8 @@ package com.ajgor.movieApi.dto;
 
 import com.ajgor.movieApi.entity.Review;
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,9 +20,10 @@ public class ReviewRequest {
     @NotBlank(message = "author must be passed")
     private String author;
 
-    @Column(columnDefinition = "integer CHECK (rating >= 0 AND rating <= 10)")
+    @Min(value = 1, message = "rating can't be less than 1")
+    @Max(value = 10, message = "rating can't be greater than 10")
     @NotNull(message = "rating must be passed")
-    private double rating;
+    private Double rating;
 
     public ReviewRequest(Review review) {
         this.author = review.getAuthor();
