@@ -1,0 +1,61 @@
+version: '3'
+services:
+  mysqldb:
+    image: mysql:8.4
+    container_name: movies-mysql-db
+    environment:
+      MYSQL_DATABASE: movies
+    env_file:
+      - mysql/.env
+    ports:
+      - 33106:3306
+    networks:
+      - springboot-mysql-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "127.0.0.1" ]
+      retries: 10
+      interval: 3s
+      timeout: 30s
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  restapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: movies-rest-api
+    ports:
+      - 8080:8080
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+    env_file:
+      - .env
+    networks:
+      - springboot-mysql-network
+    volumes:
+      - ./src:/app/src # Mount source code directory
+      - ./target:/app/target # Mount target directory
+    stdin_open: true # Enable stdin to allow manual restarts
+    tty: true # Attach tty to container for interaction
+
+  phpmyadmin:
+    depends_on:
+      - mysqldb
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      PMA_HOST: mysqldb
+    env_file:
+      - phpadmin/.env
+    networks:
+      - springboot-mysql-network
+
+networks:
+  springboot-mysql-network:
+    name: springboot-mysql-network
+
+volumes:
+  mysql-data:
