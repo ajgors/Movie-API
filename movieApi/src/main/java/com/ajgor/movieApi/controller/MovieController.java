@@ -28,12 +28,16 @@ public class MovieController {
         this.movieService = movieService;
     }
 
+    @GetMapping("/genres")
+    public String getGenres() {
+        return "akcja, Thriller, Komedia, Horror, Sci-Fiasd";
+    }
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponse> getMovie(@PathVariable long id) throws MovieNotFoundException {
         return ResponseEntity.ok(movieService.getMovie(id));
     }
 
-
+    //teste
     //    http://localhost:8080/movies?filter=genres in %5B'akcja', 'Thriller'%5D
     @GetMapping()
     public ResponseEntity<Page<MovieResponse>> getMovies(
